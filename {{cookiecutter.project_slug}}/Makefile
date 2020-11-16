@@ -9,7 +9,6 @@ PKG={{cookiecutter.project_slug}}
 
 all: test lint
 
-
 #
 # Setup
 #
@@ -19,7 +18,6 @@ install-deps:
 	@echo "--> Installing dependencies"
 	pip install -U pip setuptools wheel
 	poetry install
-	yarn
 
 activate-pre-commit:
 	@echo "--> Activating pre-commit hook"
@@ -128,8 +126,7 @@ clean:
 	find . -type d -empty -delete
 	rm -rf **/__pycache__ *.egg-info *.egg .coverage .eggs .cache .mypy_cache .pyre \
 		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
-		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml \
-		npm-debug.log yarn-error.log
+		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml
 
 tidy: clean
 	rm -rf .tox .nox .dox .travis-solo
