@@ -11,6 +11,7 @@ python = ">3.6,<4"
 cookiecutter = ">=1.4.0"
 pytest = "*"
 pytest-cookies = "*"
+pyyaml = "*"
 
 alabaster = "*"
 watchdog = "*"
