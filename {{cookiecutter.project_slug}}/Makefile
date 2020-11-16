@@ -50,7 +50,7 @@ test-with-coverage:
 
 test-with-typeguard:
 	@echo "--> Running Python tests with typeguard"
-	pytest --typeguard-packages=abilian
+	pytest --typeguard-packages=${PKG}
 	@echo ""
 
 vagrant-tests:
@@ -103,9 +103,9 @@ lint-js:
 format: format-py format-js
 
 format-py:
-	docformatter -i -r abilian
-	black
-	isort
+	docformatter -i -r ${SRC}
+	black .
+	isort .
 
 format-js:
 	echo "TODO"
