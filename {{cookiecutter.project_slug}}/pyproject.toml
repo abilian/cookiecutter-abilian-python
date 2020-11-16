@@ -74,7 +74,7 @@ pre-commit = "*"
 safety = "*"
 
 # Needed for some reason
-yaml = "*"
+pyyaml = "*"
 
 # Doc
 restructuredtext_lint = "*"
