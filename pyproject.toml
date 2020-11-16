@@ -1,0 +1,16 @@
+[tool]
+[tool.poetry]
+name = "python_boilerplate.python_boilerplate"
+version = "0.1.0"
+description = "Top-level package for Python Boilerplate."
+authors = ["Stefane  Fermigier <sf@fermigier.com>"]
+
+[tool.poetry.dependencies]
+python = ">3.6,<4"
+
+cookiecutter = ">=1.4.0"
+pytest = "*"
+pytest-cookies = "*"
+
+alabaster = "*"
+watchdog = "*"
