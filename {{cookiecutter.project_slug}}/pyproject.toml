@@ -73,6 +73,9 @@ profilehooks = "*"
 pre-commit = "*"
 safety = "*"
 
+# Needed for some reason
+yaml = "*"
+
 # Doc
 restructuredtext_lint = "*"
 
