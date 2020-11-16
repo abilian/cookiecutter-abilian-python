@@ -93,6 +93,9 @@ lint-doc:
 	sphinx-build -b dummy docs/ docs/_build/
 	@echo ""
 
+lint-js:
+	echo "TODO"
+
 #
 # Formatting
 #
