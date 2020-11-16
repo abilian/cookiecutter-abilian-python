@@ -1,93 +1,154 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
-.DEFAULT_GOAL := help
+.PHONY: all develop test lint clean doc format
 
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
+# The source directory
+SRC={{cookiecutter.project_slug}}
 
-from urllib.request import pathname2url
+# The package name
+PKG={{cookiecutter.project_slug}}
 
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
 
-define PRINT_HELP_PYSCRIPT
-import re, sys
+all: test lint
 
-for line in sys.stdin:
-	match = re.match(r'^([a-zA-Z_-]+):.*?## (.*)$$', line)
-	if match:
-		target, help = match.groups()
-		print("%-20s %s" % (target, help))
-endef
-export PRINT_HELP_PYSCRIPT
 
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+#
+# Setup
+#
+develop: install-deps activate-pre-commit configure-git
 
-help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+install-deps:
+	@echo "--> Installing dependencies"
+	pip install -U pip setuptools wheel
+	poetry install
+	yarn
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+activate-pre-commit:
+	@echo "--> Activating pre-commit hook"
+	pre-commit install
 
-clean-build: ## remove build artifacts
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+configure-git:
+	@echo "--> Configuring git"
+	git config branch.autosetuprebase always
 
-clean-pyc: ## remove Python file artifacts
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
 
-clean-test: ## remove test and coverage artifacts
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
-	rm -fr .pytest_cache
+#
+# testing & checking
+#
+test-all: test test-readme
 
-lint: ## check style with flake8
-	flake8 {{ cookiecutter.project_slug }} tests
+test:
+	@echo "--> Running Python tests"
+	pytest --ff -x -p no:randomly
+	@echo ""
 
-test: ## run tests quickly with the default Python
-{%- if cookiecutter.use_pytest == 'y' %}
+test-randomly:
+	@echo "--> Running Python tests in random order"
 	pytest
-{%- else %}
-	python setup.py test
-{%- endif %}
+	@echo ""
 
-test-all: ## run tests on every Python version with tox
-	tox
+test-with-coverage:
+	@echo "--> Running Python tests"
+	py.test --cov $(PKG)
+	@echo ""
 
-coverage: ## check code coverage quickly with the default Python
-{%- if cookiecutter.use_pytest == 'y' %}
-	coverage run --source {{ cookiecutter.project_slug }} -m pytest
-{%- else %}
-	coverage run --source {{ cookiecutter.project_slug }} setup.py test
-{%- endif %}
-	coverage report -m
-	coverage html
-	$(BROWSER) htmlcov/index.html
+test-with-typeguard:
+	@echo "--> Running Python tests with typeguard"
+	pytest --typeguard-packages=abilian
+	@echo ""
 
-docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/{{ cookiecutter.project_slug }}.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ {{ cookiecutter.project_slug }}
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	$(BROWSER) docs/_build/html/index.html
+vagrant-tests:
+	vagrant up
+	vagrant ssh -c /vagrant/deploy/vagrant_test.sh
 
-servedocs: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
-release: dist ## package and upload a release
-	twine upload dist/*
+#
+# Various Checkers
+#
+lint: lint-py lint-js lint-rst lint-doc
 
-dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
+lint-ci: lint
 
-install: clean ## install the package to the active Python's site-packages
-	python setup.py install
+lint-all: lint lint-mypy lint-bandit
+
+lint-py:
+	@echo "--> Linting Python files /w flake8"
+	flake8 $(SRC)
+	@echo ""
+
+lint-mypy:
+	@echo "--> Typechecking Python files w/ mypy"
+	mypy $(SRC)
+	@echo ""
+
+lint-travis:
+	@echo "--> Linting .travis.yml files"
+	travis lint --no-interactive
+	@echo ""
+
+lint-rst:
+	@echo "--> Linting .rst files"
+	rst-lint *.rst
+	@echo ""
+
+lint-doc:
+	@echo "--> Linting doc"
+	#sphinx-build -W -b dummy docs/ docs/_build/
+	sphinx-build -b dummy docs/ docs/_build/
+	@echo ""
+
+#
+# Formatting
+#
+format: format-py format-js
+
+format-py:
+	docformatter -i -r abilian
+	black
+	isort
+
+format-js:
+	echo "TODO"
+
+
+#
+# Everything else
+#
+install:
+	poetry install
+
+doc: doc-html doc-pdf
+
+doc-html:
+	sphinx-build -W -b html docs/ docs/_build/html
+
+doc-pdf:
+	sphinx-build -W -b latex docs/ docs/_build/latex
+	make -C docs/_build/latex all-pdf
+
+clean:
+	find . -type d -empty -delete
+	rm -rf **/__pycache__ *.egg-info *.egg .coverage .eggs .cache .mypy_cache .pyre \
+		.pytest_cache .pytest .DS_Store  docs/_build docs/cache docs/tmp \
+		dist build pip-wheel-metadata junit-*.xml htmlcov coverage.xml \
+		npm-debug.log yarn-error.log
+
+tidy: clean
+	rm -rf .tox .nox .dox .travis-solo
+	rm -rf node_modules
+	rm -rf instance
+
+update-pot:
+	# _n => ngettext, _l => lazy_gettext
+	python setup.py extract_messages update_catalog compile_catalog
+
+release:
+	maketag
+	git push --tags
+	poetry publish --build
+
+update-deps:
+	pip install -U pip setuptools wheel
+	poetry update
+	poetry export -o etc/requirements.txt
+	@echo "Warning: dephell must be installed via pipx"
+	dephell deps convert --from=pyproject.toml --to=setup.py
+	black setup.py
