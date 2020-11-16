@@ -89,8 +89,9 @@ lint-rst:
 
 lint-doc:
 	@echo "--> Linting doc"
+	@echo "TODO"
 	#sphinx-build -W -b dummy docs/ docs/_build/
-	sphinx-build -b dummy docs/ docs/_build/
+	#sphinx-build -b dummy docs/ docs/_build/
 	@echo ""
 
 lint-js:
