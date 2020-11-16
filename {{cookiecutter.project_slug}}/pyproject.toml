@@ -34,6 +34,7 @@ packages = [
     { include = "tests", format = "sdist" },
 ]
 
+
 [tool.poetry.dependencies]
 python = ">3.6,<4"
 {%- if cookiecutter.command_line_interface|lower == 'click' %}
@@ -41,17 +42,12 @@ click = "*"
 {%- endif %}
 
 [tool.poetry.dev-dependencies]
-[tool.poetry.dev-dependencies]
-# Development / testing
-pytest-cov = "*"
-pytest-flask = "^1.0.0"
-coveralls = "*"
-Flask-LinkTester = "*"
-Flask-DebugToolbar = ">=0.10"
-profilehooks = "*"
-pre-commit = "*"
-
 # Testing
+pytest = "*"
+pytest-cov = "*"
+coveralls = "*"
+
+# Linting
 flake8-mypy = "*"
 flake8-bugbear = "*"
 flake8-comprehensions = "*"
@@ -62,9 +58,21 @@ flake8-tidy-imports = "*"
 mastool = "*"
 mccabe = "*"
 
-# Cleanup
+# Formatting
 isort = "*"
 black = { version = "*", allow-prereleases = true }
+
+# Flask specific
+pytest-flask = "^1.0.0"
+Flask-LinkTester = "*"
+Flask-DebugToolbar = ">=0.10"
+
+# Other tools
+profilehooks = "*"
+pre-commit = "*"
+
+# Doc
+restructuredtext_lint = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
