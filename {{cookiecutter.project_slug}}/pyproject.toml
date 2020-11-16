@@ -48,7 +48,7 @@ pytest-cov = "*"
 coveralls = "*"
 
 # Linting
-flake8-mypy = "*"
+flake8 = "*"
 flake8-bugbear = "*"
 flake8-comprehensions = "*"
 flake8-mutable = "*"
@@ -57,6 +57,7 @@ flake8-super-call = "*"
 flake8-tidy-imports = "*"
 mastool = "*"
 mccabe = "*"
+mypy = "*"
 
 # Formatting
 isort = "*"
@@ -70,6 +71,7 @@ Flask-DebugToolbar = ">=0.10"
 # Other tools
 profilehooks = "*"
 pre-commit = "*"
+safety = "*"
 
 # Doc
 restructuredtext_lint = "*"
