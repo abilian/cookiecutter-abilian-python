@@ -148,7 +148,4 @@ release:
 update-deps:
 	pip install -U pip setuptools wheel
 	poetry update
-	poetry export -o etc/requirements.txt
-	@echo "Warning: dephell must be installed via pipx"
-	dephell deps convert --from=pyproject.toml --to=setup.py
-	black setup.py
+	poetry export -o requirements.txt
