@@ -212,8 +212,9 @@ def test_not_using_pytest(cookies):
         # Test contents of test file
         test_file_path = result.project.join('tests/test_python_boilerplate.py')
         lines = test_file_path.readlines()
-        assert "import unittest" in ''.join(lines)
-        assert "import pytest" not in ''.join(lines)
+        assert "import pytest" in ''.join(lines)
+        # Test the new pytest target
+        run_inside_dir('pytest', str(result.project)) == 0
 
 
 def test_using_google_docstrings(cookies):
