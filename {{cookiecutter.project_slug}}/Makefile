@@ -1,8 +1,5 @@
 .PHONY: all develop test lint clean doc format
 
-# The source directory
-SRC={{cookiecutter.project_slug}}
-
 # The package name
 PKG={{cookiecutter.project_slug}}
 
@@ -69,12 +66,12 @@ lint-all: lint lint-mypy lint-bandit
 
 lint-py:
 	@echo "--> Linting Python files /w flake8"
-	flake8 $(SRC)
+	flake8 src tests
 	@echo ""
 
 lint-mypy:
 	@echo "--> Typechecking Python files w/ mypy"
-	mypy $(SRC)
+	mypy src tests
 	@echo ""
 
 lint-travis:
@@ -84,7 +81,7 @@ lint-travis:
 
 lint-rst:
 	@echo "--> Linting .rst files"
-	rst-lint *.rst
+	-rst-lint *.rst
 	@echo ""
 
 lint-doc:
@@ -103,9 +100,9 @@ lint-js:
 format: format-py format-js
 
 format-py:
-	docformatter -i -r ${SRC}
-	black .
-	isort .
+	docformatter -i -r src
+	black src tests
+	isort src tests
 
 format-js:
 	echo "TODO"

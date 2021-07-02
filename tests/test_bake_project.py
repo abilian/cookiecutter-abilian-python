@@ -1,9 +1,10 @@
 from contextlib import contextmanager
 import shlex
 import os
-import sys
 import subprocess
 import datetime
+
+import pytest
 from cookiecutter.utils import rmtree
 
 
@@ -53,56 +54,35 @@ def check_output_inside_dir(command: str, dirpath: str) -> bytes:
 
 def test_year_compute_in_license_file(cookies):
     with bake_in_temp_dir(cookies) as result:
-        license_file_path = result.project.join('LICENSE')
+        license_file_path = result.project.join("LICENSE")
         now = datetime.datetime.now()
         assert str(now.year) in license_file_path.read()
 
 
-def project_info(result):
-    """Get toplevel dir, project_slug, and project dir from baked cookies"""
-    project_path = str(result.project)
-    project_slug = os.path.split(project_path)[-1]
-    project_dir = os.path.join(project_path, project_slug)
-    return project_path, project_slug, project_dir
-
-
-def test_bake_with_defaults(cookies):
-    with bake_in_temp_dir(cookies) as result:
+@pytest.mark.parametrize(
+    "extra_context", [{}, {"full_name": 'name "quote" name'}, {"full_name": "O'connor"}]
+)
+def test_bake(cookies, extra_context):
+    with bake_in_temp_dir(
+        cookies,
+        extra_context=extra_context,
+    ) as result:
         assert result.project.isdir()
         assert result.exit_code == 0
         assert result.exception is None
 
         found_toplevel_files = [f.basename for f in result.project.listdir()]
-        assert 'src' in found_toplevel_files
-        assert 'tests' in found_toplevel_files
-        assert 'tox.ini' in found_toplevel_files
-        assert 'pyproject.toml' in found_toplevel_files
+        assert "src" in found_toplevel_files
+        assert "tests" in found_toplevel_files
+        assert "tox.ini" in found_toplevel_files
+        assert "pyproject.toml" in found_toplevel_files
+
+        # assert run_inside_dir('tox', result.project) == 0
 
 
-def test_bake_and_run_tests(cookies):
+def test_bake_and_run_tox(cookies):
     with bake_in_temp_dir(cookies) as result:
-        assert result.project.isdir()
-        assert run_inside_dir('pytest tests', result.project) == 0
-
-
-def test_bake_withspecialchars_and_run_tests(cookies):
-    """Ensure that a `full_name` with double quotes does not break setup.py"""
-    with bake_in_temp_dir(
-        cookies,
-        extra_context={'full_name': 'name "quote" name'}
-    ) as result:
-        assert result.project.isdir()
-        assert run_inside_dir('pytest tests', result.project) == 0
-
-
-def test_bake_with_apostrophe_and_run_tests(cookies):
-    """Ensure that a `full_name` with apostrophes does not break setup.py"""
-    with bake_in_temp_dir(
-        cookies,
-        extra_context={'full_name': "O'connor"}
-    ) as result:
-        assert result.project.isdir()
-        assert run_inside_dir('pytest tests', result.project) == 0
+        assert run_inside_dir('tox', result.project) == 0
 
 
 # def test_make_help(cookies):

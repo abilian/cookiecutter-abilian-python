@@ -1,14 +1,18 @@
-[tool]
 [tool.poetry]
-name = "python_boilerplate.python_boilerplate"
+name = "cookiecutter-abilian-python"
 version = "0.1.0"
 description = "Top-level package for Python Boilerplate."
 authors = ["Stefane  Fermigier <sf@fermigier.com>"]
 
+
 [tool.poetry.dependencies]
-python = ">3.6,<4"
+python = ">=3.8"
 
 cookiecutter = ">=1.4.0"
+
+
+[tool.poetry.dev-dependencies]
+icecream = "^2.1.1"
 pytest = "*"
 pytest-cookies = "*"
 pyyaml = "*"
